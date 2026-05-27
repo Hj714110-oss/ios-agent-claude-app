@@ -35,9 +35,6 @@ packages:
   Runestone:
     url: https://github.com/simonbs/Runestone
     from: 0.7.0
-  SwiftLibGit2:
-    url: https://github.com/swift-developer-tools/swift-libgit2
-    from: 0.4.0
 targets:
   AgentIDEApp:
     type: application
@@ -49,7 +46,6 @@ targets:
         INFOPLIST_FILE: AgentIDEApp/Info.plist
     dependencies:
       - package: Runestone
-      - package: SwiftLibGit2
     scheme:
       testTargets:
         - AgentIDEAppTests

@@ -21,6 +21,7 @@ if ! command -v xcodegen >/dev/null 2>&1; then
 fi
 
 echo "[CI] Generating Xcode project"
+rm -rf AgentIDE.xcodeproj
 xcodegen generate
 
 echo "[CI] Available schemes"

@@ -1,0 +1,78 @@
+name: iOS CI
+
+on:
+  push:
+    branches:
+      - main
+      - master
+  pull_request:
+  workflow_dispatch:
+    inputs:
+      profile:
+        description: "Profile to run: all | store | open"
+        required: false
+        default: "all"
+        type: choice
+        options:
+          - all
+          - store
+          - open
+      run_tests:
+        description: "Run tests (true) or build only (false)"
+        required: false
+        default: "true"
+        type: choice
+        options:
+          - "true"
+          - "false"
+
+jobs:
+  ios-ci:
+    runs-on: macos-latest
+    timeout-minutes: 60
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Homebrew deps
+        run: |
+          brew update
+          brew install xcodegen
+
+      - name: Resolve run options
+        id: options
+        shell: bash
+        run: |
+          PROFILE="${{ github.event.inputs.profile }}"
+          RUN_TESTS="${{ github.event.inputs.run_tests }}"
+          if [[ -z "$PROFILE" ]]; then PROFILE="all"; fi
+          if [[ -z "$RUN_TESTS" ]]; then RUN_TESTS="true"; fi
+          echo "profile=$PROFILE" >> "$GITHUB_OUTPUT"
+          echo "run_tests=$RUN_TESTS" >> "$GITHUB_OUTPUT"
+
+      - name: Show Xcode version
+        run: xcodebuild -version
+
+      - name: Run iOS CI script
+        shell: bash
+        run: |
+          chmod +x scripts/ci_ios.sh
+          scripts/ci_ios.sh "${{ steps.options.outputs.profile }}" "${{ steps.options.outputs.run_tests }}"
+
+      - name: Upload build logs and settings
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ios-artifacts
+          path: |
+            artifacts/*.txt
+          if-no-files-found: warn
+
+      - name: Upload xcresult bundles
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ios-xcresults
+          path: .ci/results/*.xcresult
+          if-no-files-found: warn

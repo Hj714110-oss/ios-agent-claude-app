@@ -1,0 +1,26 @@
+[
+  {
+    "id": "code_fix_python",
+    "name": "Python Fixer",
+    "version": "1.0.0",
+    "triggers": [
+      { "type": "keyword", "value": "traceback" },
+      { "type": "keyword", "value": "fix bug" }
+    ],
+    "tools": ["workspace_search", "workspace_read", "workspace_write", "runtime_python"],
+    "promptTemplate": "Diagnose error, propose patch, then verify with rerun.",
+    "permissions": ["workspace.read", "workspace.write", "runtime.local"]
+  },
+  {
+    "id": "design_to_swiftui",
+    "name": "Design to SwiftUI",
+    "version": "1.0.0",
+    "triggers": [
+      { "type": "keyword", "value": "design" },
+      { "type": "keyword", "value": "swiftui" }
+    ],
+    "tools": ["studio_generate", "editor_insert"],
+    "promptTemplate": "Create wireframe first, then convert sections into SwiftUI components.",
+    "permissions": ["workspace.read", "workspace.write"]
+  }
+]

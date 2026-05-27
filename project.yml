@@ -31,10 +31,6 @@ settings:
       SWIFT_ACTIVE_COMPILATION_CONDITIONS: OPEN_PROFILE DEBUG
     OpenProfile-Release:
       SWIFT_ACTIVE_COMPILATION_CONDITIONS: OPEN_PROFILE
-packages:
-  Runestone:
-    url: https://github.com/simonbs/Runestone
-    from: 0.7.0
 targets:
   AgentIDEApp:
     type: application
@@ -44,8 +40,6 @@ targets:
     settings:
       base:
         INFOPLIST_FILE: AgentIDEApp/Info.plist
-    dependencies:
-      - package: Runestone
     scheme:
       testTargets:
         - AgentIDEAppTests

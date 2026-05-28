@@ -5,9 +5,6 @@ workflows:
     instance_type: mac_mini_m1
     
     environment:
-      groups:
-        # 可以在 Codemagic UI 中配置环境变量组
-        # - app_store_credentials (如果需要发布)
       vars:
         XCODE_WORKSPACE: "AgentIDE.xcodeproj"
         XCODE_SCHEME: "AgentIDEApp"

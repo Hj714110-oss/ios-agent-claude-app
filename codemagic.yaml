@@ -1,2 +1,50 @@
-[CONTEXT OFFLOADED] Content (~386 tokens, 1269 bytes) saved to: /var/minis/offloads/tools/file_write_KkU85oI25XwY.txt
-Use file_read tool to retrieve if needed.
+workflows:
+  ios-workflow:
+    name: iOS Agent IDE Build
+    max_build_duration: 30
+    instance_type: mac_mini_m2
+    
+    environment:
+      vars:
+        XCODE_WORKSPACE: "AgentIDE.xcodeproj"
+        XCODE_SCHEME: "AgentIDEApp"
+        BUNDLE_ID: "com.example.AgentIDE"
+      xcode: latest
+    
+    triggering:
+      events:
+        - push
+        - pull_request
+      branch_patterns:
+        - pattern: 'main'
+          include: true
+          source: true
+    
+    scripts:
+      - name: Install XcodeGen
+        script: |
+          brew install xcodegen
+      
+      - name: Generate Xcode Project
+        script: |
+          echo "🔧 Generating Xcode project with XcodeGen..."
+          rm -rf AgentIDE.xcodeproj
+          xcodegen generate
+          echo "✅ Project generated"
+      
+      - name: List Available Schemes
+        script: |
+          echo "📋 Available schemes:"
+          xcodebuild -list -project AgentIDE.xcodeproj
+      
+      - name: Build
+        script: |
+          echo "🏗️ Building..."
+          xcodebuild \
+            -project AgentIDE.xcodeproj \
+            -scheme "$XCODE_SCHEME" \
+            -destination 'platform=iOS Simulator,name=iPhone 16,OS=latest' \
+            clean build \
+            CODE_SIGN_IDENTITY="" \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGNING_ALLOWED=NO

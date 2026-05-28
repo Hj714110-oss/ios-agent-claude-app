@@ -33,24 +33,50 @@ open AgentIDE.xcodeproj
 
 4. Run on iPhone simulator (iOS 17+).
 
-## Cloud CI (No local macOS required)
+## Cloud CI with Codemagic (No macOS required)
 
-This repository includes GitHub Actions workflow:
+This repository uses **Codemagic** for cloud-based iOS builds:
 
-- `.github/workflows/ios-ci.yml`
-- `scripts/ci_ios.sh`
+### Setup Steps
 
-It runs on `macos-latest` and supports:
+1. **Sign up** at [codemagic.io](https://codemagic.io) (free tier available)
+2. **Connect your repository** (GitHub/GitLab/Bitbucket)
+3. **Codemagic will auto-detect** `codemagic.yaml` configuration
+4. **Trigger builds** via:
+   - Push to `main`/`master`/`develop` branches
+   - Pull requests
+   - Manual trigger from Codemagic dashboard
 
-- `xcodegen generate`
-- Build `StoreProfile-Debug` and `OpenProfile-Debug`
-- Run `AgentIDEAppTests` on `iPhone 15 / iOS 17.0`
-- Upload build logs and `.xcresult` bundles as artifacts
+### Configuration Files
 
-Manual trigger options (`workflow_dispatch`):
+- `codemagic.yaml` - Main CI/CD configuration
+  - `ios-workflow`: Full build + tests for both profiles
+  - `ios-build-only`: Quick build without tests (for feature branches)
 
-- `profile`: `all` / `store` / `open`
-- `run_tests`: `true` / `false`
+### What Gets Built
+
+- ✅ `StoreProfile-Debug` - Curated tools, no remote execution
+- ✅ `OpenProfile-Debug` - Full feature set with remote execution
+- ✅ Unit tests via `AgentIDEAppTests`
+- ✅ Artifacts: `.app` bundles, test results (`.xcresult`), logs
+
+### Why Codemagic?
+
+- **No macOS needed** - Runs on cloud Mac Mini M1 instances
+- **Free tier** - 500 build minutes/month for open source
+- **Fast** - M1 hardware, cached dependencies
+- **iOS-focused** - Better than generic GitHub Actions for mobile
+
+### Migration from GitHub Actions
+
+The old GitHub Actions workflow (`.github/workflows/ios-ci.yml`) has been **replaced** with Codemagic. Benefits:
+
+| Feature | GitHub Actions | Codemagic |
+|---------|---------------|-----------|
+| macOS runner | `macos-latest` (Intel) | Mac Mini M1 (faster) |
+| Free tier | 2000 min/month | 500 min/month (sufficient) |
+| iOS tooling | Generic | Specialized (Xcode, simulators, signing) |
+| Setup complexity | High (manual Xcode setup) | Low (pre-configured) |
 
 ## Build Profiles
 

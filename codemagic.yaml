@@ -1,0 +1,146 @@
+workflows:
+  ios-workflow:
+    name: iOS Agent IDE Build
+    max_build_duration: 60
+    instance_type: mac_mini_m1
+    
+    environment:
+      groups:
+        # 可以在 Codemagic UI 中配置环境变量组
+        # - app_store_credentials (如果需要发布)
+      vars:
+        XCODE_WORKSPACE: "AgentIDE.xcodeproj"
+        XCODE_SCHEME: "AgentIDEApp"
+        BUNDLE_ID: "com.example.AgentIDE"
+      xcode: 15.0
+      cocoapods: default
+    
+    triggering:
+      events:
+        - push
+        - pull_request
+      branch_patterns:
+        - pattern: 'main'
+          include: true
+          source: true
+        - pattern: 'master'
+          include: true
+          source: true
+        - pattern: 'develop'
+          include: true
+          source: true
+    
+    scripts:
+      - name: Install XcodeGen
+        script: |
+          brew install xcodegen
+      
+      - name: Generate Xcode Project
+        script: |
+          echo "🔧 Generating Xcode project with XcodeGen..."
+          rm -rf AgentIDE.xcodeproj
+          xcodegen generate
+          echo "✅ Project generated"
+      
+      - name: List Available Schemes
+        script: |
+          echo "📋 Available schemes:"
+          xcodebuild -list -project AgentIDE.xcodeproj
+      
+      - name: Build StoreProfile-Debug
+        script: |
+          echo "🏗️ Building StoreProfile-Debug..."
+          xcodebuild \
+            -project AgentIDE.xcodeproj \
+            -scheme "$XCODE_SCHEME" \
+            -configuration StoreProfile-Debug \
+            -destination 'platform=iOS Simulator,name=iPhone 15,OS=latest' \
+            -derivedDataPath build/StoreProfile \
+            clean build \
+            CODE_SIGN_IDENTITY="" \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGNING_ALLOWED=NO
+      
+      - name: Build OpenProfile-Debug
+        script: |
+          echo "🏗️ Building OpenProfile-Debug..."
+          xcodebuild \
+            -project AgentIDE.xcodeproj \
+            -scheme "$XCODE_SCHEME" \
+            -configuration OpenProfile-Debug \
+            -destination 'platform=iOS Simulator,name=iPhone 15,OS=latest' \
+            -derivedDataPath build/OpenProfile \
+            clean build \
+            CODE_SIGN_IDENTITY="" \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGNING_ALLOWED=NO
+      
+      - name: Run Unit Tests
+        script: |
+          echo "🧪 Running unit tests..."
+          xcodebuild \
+            -project AgentIDE.xcodeproj \
+            -scheme "$XCODE_SCHEME" \
+            -configuration StoreProfile-Debug \
+            -destination 'platform=iOS Simulator,name=iPhone 15,OS=latest' \
+            -derivedDataPath build/Tests \
+            -resultBundlePath build/TestResults.xcresult \
+            test \
+            CODE_SIGN_IDENTITY="" \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGNING_ALLOWED=NO
+        test_report: build/TestResults.xcresult
+    
+    artifacts:
+      - build/StoreProfile/Build/Products/**/*.app
+      - build/OpenProfile/Build/Products/**/*.app
+      - build/TestResults.xcresult
+      - build/**/*.log
+    
+    publishing:
+      email:
+        recipients:
+          - your-email@example.com
+        notify:
+          success: false
+          failure: true
+
+  # 可选：仅构建不测试的快速工作流
+  ios-build-only:
+    name: iOS Quick Build (No Tests)
+    max_build_duration: 30
+    instance_type: mac_mini_m1
+    
+    environment:
+      vars:
+        XCODE_WORKSPACE: "AgentIDE.xcodeproj"
+        XCODE_SCHEME: "AgentIDEApp"
+      xcode: 15.0
+    
+    triggering:
+      events:
+        - push
+      branch_patterns:
+        - pattern: 'feature/*'
+          include: true
+          source: true
+    
+    scripts:
+      - name: Install XcodeGen
+        script: brew install xcodegen
+      
+      - name: Generate and Build
+        script: |
+          xcodegen generate
+          xcodebuild \
+            -project AgentIDE.xcodeproj \
+            -scheme "$XCODE_SCHEME" \
+            -configuration StoreProfile-Debug \
+            -destination 'platform=iOS Simulator,name=iPhone 15,OS=latest' \
+            clean build \
+            CODE_SIGN_IDENTITY="" \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGNING_ALLOWED=NO
+    
+    artifacts:
+      - build/**/*.app

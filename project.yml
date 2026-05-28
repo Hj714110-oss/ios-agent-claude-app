@@ -43,9 +43,6 @@ targets:
     scheme:
       testTargets:
         - AgentIDEAppTests
-      configVariants:
-        - StoreProfile
-        - OpenProfile
   AgentIDEAppTests:
     type: bundle.unit-test
     platform: iOS

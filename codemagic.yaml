@@ -2,15 +2,14 @@ workflows:
   ios-workflow:
     name: iOS Agent IDE Build
     max_build_duration: 60
-    instance_type: mac_mini_m1
+    instance_type: mac_mini_m2
     
     environment:
       vars:
         XCODE_WORKSPACE: "AgentIDE.xcodeproj"
         XCODE_SCHEME: "AgentIDEApp"
         BUNDLE_ID: "com.example.AgentIDE"
-      xcode: 15.0
-      cocoapods: default
+      xcode: latest
     
     triggering:
       events:
@@ -51,7 +50,7 @@ workflows:
             -project AgentIDE.xcodeproj \
             -scheme "$XCODE_SCHEME" \
             -configuration StoreProfile-Debug \
-            -destination 'platform=iOS Simulator,name=iPhone 15,OS=latest' \
+            -destination 'platform=iOS Simulator,name=iPhone 16,OS=latest' \
             -derivedDataPath build/StoreProfile \
             clean build \
             CODE_SIGN_IDENTITY="" \
@@ -65,7 +64,7 @@ workflows:
             -project AgentIDE.xcodeproj \
             -scheme "$XCODE_SCHEME" \
             -configuration OpenProfile-Debug \
-            -destination 'platform=iOS Simulator,name=iPhone 15,OS=latest' \
+            -destination 'platform=iOS Simulator,name=iPhone 16,OS=latest' \
             -derivedDataPath build/OpenProfile \
             clean build \
             CODE_SIGN_IDENTITY="" \
@@ -79,7 +78,7 @@ workflows:
             -project AgentIDE.xcodeproj \
             -scheme "$XCODE_SCHEME" \
             -configuration StoreProfile-Debug \
-            -destination 'platform=iOS Simulator,name=iPhone 15,OS=latest' \
+            -destination 'platform=iOS Simulator,name=iPhone 16,OS=latest' \
             -derivedDataPath build/Tests \
             -resultBundlePath build/TestResults.xcresult \
             test \
@@ -106,13 +105,13 @@ workflows:
   ios-build-only:
     name: iOS Quick Build (No Tests)
     max_build_duration: 30
-    instance_type: mac_mini_m1
+    instance_type: mac_mini_m2
     
     environment:
       vars:
         XCODE_WORKSPACE: "AgentIDE.xcodeproj"
         XCODE_SCHEME: "AgentIDEApp"
-      xcode: 15.0
+      xcode: latest
     
     triggering:
       events:
@@ -133,7 +132,7 @@ workflows:
             -project AgentIDE.xcodeproj \
             -scheme "$XCODE_SCHEME" \
             -configuration StoreProfile-Debug \
-            -destination 'platform=iOS Simulator,name=iPhone 15,OS=latest' \
+            -destination 'platform=iOS Simulator,name=iPhone 16,OS=latest' \
             clean build \
             CODE_SIGN_IDENTITY="" \
             CODE_SIGNING_REQUIRED=NO \
